@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetAllBooks(w http.ResponseWriter, r *http.Request) {
+func GetBooks(w http.ResponseWriter, r *http.Request) {
 	rows, err := Db.Query("SELECT * FROM books")
 	if err != nil {
 		log.Println("Error fetching result from db -", err.Error())
@@ -38,7 +38,7 @@ func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(JsonResponse{"data": books})
 }
 
-func GetABook(w http.ResponseWriter, r *http.Request) {
+func GetBook(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	if id == 0 {
@@ -51,7 +51,6 @@ func GetABook(w http.ResponseWriter, r *http.Request) {
 
 	row := Db.QueryRow("SELECT * FROM books where id = ?", id)
 	err := row.Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
-
 	switch {
 	case err == sql.ErrNoRows:
 		w.WriteHeader(http.StatusNotFound)
@@ -115,6 +114,27 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(JsonResponse{"data": book})
+}
+
+func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	if id == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(JsonResponse{"message": "Invalid book ID"})
+		return
+	}
+
+	result, err := Db.Exec("DELETE FROM books where id = ?", id)
+	rows, _ := result.RowsAffected()
+	if err != nil || rows < 1 {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(JsonResponse{"message": "error deleting book"})
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+	json.NewEncoder(w).Encode(JsonResponse{"message": "book deleted successfully"})
 }
 
 func formatDate(s string) (time.Time, error) {
