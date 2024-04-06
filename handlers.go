@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -30,6 +29,7 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 
 		err := rows.Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
 		if err != nil {
+			log.Println(err.Error())
 			continue
 		}
 
@@ -74,6 +74,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "Unprocessable entity"})
 		return
@@ -94,6 +95,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	book.PublishedAt, err = formatDate(input.PublishedAt)
 	switch {
 	case err != nil:
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "error parsing published_at field - ensure it is of the format 'YYYY-MM-DD'"})
 		return
@@ -134,6 +136,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "Unprocessable entity"})
 		return
@@ -154,6 +157,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	book.PublishedAt, err = formatDate(input.PublishedAt)
 	switch {
 	case err != nil:
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "error parsing published_at field - ensure it is of the format 'YYYY-MM-DD'"})
 		return
@@ -166,7 +170,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	stmt := "UPDATE books SET author = ?, title = ?, published_at = ? WHERE id = ?"
 	_, err = Db.Exec(stmt, book.Author, book.Title, book.PublishedAt, id)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "error updating book"})
 		return
@@ -190,6 +194,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	result, err := Db.Exec("DELETE FROM books where id = ?", id)
 	rows, _ := result.RowsAffected()
 	if err != nil || rows < 1 {
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "error deleting book"})
 		return
