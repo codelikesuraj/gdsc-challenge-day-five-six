@@ -188,7 +188,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := Db.Exec("DELETE FROM books where id = ?", id)
-	rows, _ := result.RowsAffected()git 
+	rows, _ := result.RowsAffected()
 	if err != nil || rows < 1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(JsonResponse{"message": "error deleting book"})
