@@ -25,8 +25,9 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/books", GetBooks).Methods(http.MethodGet)
-	r.HandleFunc("/books/{id}", GetBook).Methods(http.MethodGet)
+	r.HandleFunc("/books", GetAllBooks).Methods(http.MethodGet)
+	r.HandleFunc("/books/{id}", GetABook).Methods(http.MethodGet)
+	r.HandleFunc("/books", CreateBook).Methods(http.MethodPost)
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
