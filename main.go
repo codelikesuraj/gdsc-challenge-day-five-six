@@ -28,6 +28,7 @@ func main() {
 	r.HandleFunc("/books", GetBooks).Methods(http.MethodGet)
 	r.HandleFunc("/books/{id}", GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/books", CreateBook).Methods(http.MethodPost)
+	r.HandleFunc("/books/{id}", UpdateBook).Methods(http.MethodPut)
 	r.HandleFunc("/books/{id}", DeleteBook).Methods(http.MethodDelete)
 
 	r.Use(func(next http.Handler) http.Handler {
