@@ -13,8 +13,8 @@ import (
 const (
 	PORT = "3000"
 
-	DB_USER     = "root"
-	DB_PASS     = "root"
+	DB_USER     = "db_username"
+	DB_PASS     = "db_password"
 	DB_DATABASE = "bookstore"
 )
 
